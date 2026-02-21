@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { HistoryDataPoint } from '../services/types';
-import { fetchHistory } from '../services/api';
+import { fetchHistoryData } from '../services/api';
 import { HistoryChart } from '../components/dashboard/HistoryChart';
 import { Loader2 } from 'lucide-react';
 
@@ -11,7 +11,7 @@ export const History: React.FC = () => {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const historyData = await fetchHistory();
+                const historyData = await fetchHistoryData();
                 setData(historyData);
             } catch (error) {
                 console.error("Failed to fetch history data", error);
