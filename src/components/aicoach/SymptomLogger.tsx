@@ -3,6 +3,8 @@ import type { LoggedSymptom } from '../../services/symptomStorage';
 import { Activity, Plus, Save } from 'lucide-react';
 import { clsx } from 'clsx';
 
+import { postSymptomLog } from '../../services/api';
+
 const COMMON_SYMPTOMS = [
     'Cough',
     'Wheezing',
@@ -22,6 +24,7 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onLogAdded }) => {
     const [customSymptom, setCustomSymptom] = useState<string>('');
     const [severity, setSeverity] = useState<LoggedSymptom['severity']>('Mild');
     const [notes, setNotes] = useState<string>('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSymptomSelect = (selString: string) => {
         setSymptom(selString);
@@ -30,11 +33,16 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onLogAdded }) => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const finalSymptom = symptom === 'Other' ? customSymptom : symptom;
         if (!finalSymptom.trim()) return;
+
+        setIsSubmitting(true);
+
+        // Post data to the live backend API
+        await postSymptomLog(finalSymptom.trim(), severity, notes.trim());
 
         // We only pass the fields required by symptomStorage.addLog
         const newLogData = {
@@ -54,6 +62,7 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onLogAdded }) => {
         setCustomSymptom('');
         setSeverity('Mild');
         setNotes('');
+        setIsSubmitting(false);
     };
 
     return (
@@ -149,11 +158,11 @@ export const SymptomLogger: React.FC<SymptomLoggerProps> = ({ onLogAdded }) => {
 
                 <button
                     type="submit"
-                    disabled={!symptom || (symptom === 'Other' && !customSymptom.trim())}
+                    disabled={isSubmitting || !symptom || (symptom === 'Other' && !customSymptom.trim())}
                     className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                    <Save className="w-5 h-5 mr-2" />
-                    Log Symptom
+                    <Save className={`w-5 h-5 mr-2 ${isSubmitting ? 'animate-pulse' : ''}`} />
+                    {isSubmitting ? 'Saving to Cloud...' : 'Log Symptom'}
                 </button>
             </form>
         </div>
