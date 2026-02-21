@@ -1,0 +1,21 @@
+{
+    "name": "EcoBreath AI",
+    "short_name": "EcoBreath",
+    "description": "Smart Environmental Health Monitoring Dashboard",
+    "icons": [
+        {
+            "src": "/vite.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "/vite.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f8fafc",
+    "theme_color": "#0ea5e9"
+}
