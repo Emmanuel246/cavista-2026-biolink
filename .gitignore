@@ -132,3 +132,5 @@ dmypy.json
 
 # Project specific
 *.tmp
+# SQLite DB created by backend
+backend/ecobreathe.db
