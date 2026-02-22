@@ -12,13 +12,13 @@ interface HistoryChartProps {
 
 export const HistoryChart: React.FC<HistoryChartProps> = ({ data, dataKey, title, color, unit }) => {
     return (
-        <div className="relative bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 p-5 sm:p-6 h-80 flex flex-col transition-all duration-300 hover:shadow-lg dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 dark:hover:bg-white/10 overflow-hidden shadow-sm dark:shadow-none">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-slate-100/50 dark:from-white/[0.05] to-transparent pointer-events-none transition-colors duration-300"></div>
+        <div className="relative bg-white/70 dark:bg-[var(--color-surface-800)]/80 backdrop-blur-3xl rounded-[2rem] border border-slate-200/50 dark:border-white/5 p-6 sm:p-8 h-[22rem] flex flex-col transition-all duration-400 shadow-sm dark:shadow-[var(--shadow-soft-dark)] hover:shadow-md dark:hover:shadow-lg overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-slate-100/50 dark:from-white/[0.05] to-transparent pointer-events-none transition-colors duration-400"></div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-6 relative z-10 transition-colors">{title} Over Time</h3>
             <div className="flex-1 w-full min-h-0 relative z-10">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#cbd5e1" className="dark:!stroke-slate-700 transition-colors" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} horizontal={false} stroke="#cbd5e1" className="dark:!stroke-slate-700/50 transition-colors" />
                         <XAxis
                             dataKey="timestamp"
                             axisLine={false}
