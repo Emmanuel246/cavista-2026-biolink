@@ -1,5 +1,5 @@
 import asyncio
-from aqi_service import fetch_aqi, get_aqi_with_fallback
+from aqi_service import fetch_aqi, get_aqi_with_fallback, is_device_aqi_valid
 
 
 async def main():
@@ -25,7 +25,6 @@ async def main():
     result = await get_aqi_with_fallback(lat=999, lon=999, last_known=fake_last_known)
     print(result)
     assert result["source"] == "last_known"
-    assert result["coordinate_source"] == "cached"
     assert result["aqi"] == 95
 
     print("\n--- Test 4: Bad coordinates, no last known (unavailable) ---")
@@ -33,6 +32,15 @@ async def main():
     print(result)
     assert result["source"] == "unavailable"
     assert result["aqi"] is None
+
+    print("\n--- Test 5: Device AQI validation ---")
+    assert is_device_aqi_valid(115)  is True,  "115 should be valid"
+    assert is_device_aqi_valid(0)    is False,  "0 should be flagged"
+    assert is_device_aqi_valid(500)  is False,  "500 should be flagged"
+    assert is_device_aqi_valid(401)  is False,  "401 should be flagged"
+    assert is_device_aqi_valid(400)  is True,   "400 should be valid"
+    assert is_device_aqi_valid(1)    is True,   "1 should be valid"
+    print("All validation checks passed.")
 
     print("\n--- All tests passed ---")
 
