@@ -28,13 +28,15 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({ score }) => {
     const strokeDashoffset = circumference - (score / 100) * circumference;
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 flex flex-col items-center justify-center h-full transition-all duration-300 hover:shadow-md">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-8 self-start w-full flex items-center">
+        <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-5 sm:p-6 flex flex-col items-center justify-center h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none"></div>
+
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-8 self-start w-full flex items-center relative z-10">
                 <HeartPulse className="w-4 h-4 mr-2" />
                 Health Score
             </h3>
 
-            <div className="relative flex items-center justify-center w-40 h-40 mt-[-1rem]">
+            <div className="relative flex items-center justify-center w-40 h-40 mt-[-1rem] z-10">
                 {/* Background Circle */}
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
                     <circle
@@ -55,17 +57,17 @@ export const HealthGauge: React.FC<HealthGaugeProps> = ({ score }) => {
                         strokeDasharray={circumference}
                         strokeDashoffset={strokeDashoffset}
                         strokeLinecap="round"
-                        className={clsx('transition-all duration-[1.5s] ease-out', colorClass)}
+                        className={clsx('transition-all duration-[1.5s] ease-out drop-shadow-[0_0_8px_currentColor]', colorClass)}
                         stroke="currentColor"
                     />
                 </svg>
 
                 {/* Score Text */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center animate-fade-in-up">
+                <div className="absolute inset-0 flex flex-col items-center justify-center animate-fade-in-up drop-shadow-lg">
                     <span className={clsx('text-5xl font-black tracking-tighter', colorClass)}>
                         {score}
                     </span>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
+                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">
                         {label}
                     </span>
                 </div>

@@ -6,13 +6,17 @@ import { MobileBottomNav } from './MobileBottomNav';
 
 export const DashboardLayout: React.FC = () => {
     return (
-        <div className="flex h-screen bg-slate-50 overflow-hidden relative">
+        <div className="flex h-screen bg-[#020617] text-slate-50 overflow-hidden relative selection:bg-cyan-500/30">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none"></div>
+
             {/* Desktop Sidebar (hidden on mobile) */}
             <Sidebar />
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col overflow-hidden w-full h-full relative">
-                {/* Header (Hamburger removed via internal component logic or just hidden) */}
+            <div className="flex-1 flex flex-col overflow-hidden w-full h-full relative z-10">
+                {/* Header */}
                 <Header />
 
                 {/* Scrollable Main Area (padding bottom for PWA nav bar) */}
