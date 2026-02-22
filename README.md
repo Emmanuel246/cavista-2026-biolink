@@ -1,73 +1,288 @@
-# React + TypeScript + Vite
+# EcoBreathe AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Smart Environmental Monitoring that Predicts Health Risks Before They Happen**
 
-Currently, two official plugins are available:
+EcoBreathe AI is an IoT-powered environmental health monitoring system that collects real-time air and weather data, analyzes it using an AI risk engine, and provides early warnings to help prevent heat stress and respiratory problems.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Built for the hackathon theme:
+**From Data to Prevention: AI as Health Partner**
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Overview
 
-## Expanding the ESLint configuration
+EcoBreathe AI transforms environmental data into actionable health insights.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The system monitors:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+* Temperature
+* Humidity
+* Air quality (pollution levels)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Using this data, it predicts:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+* Heat stress risk
+* Respiratory / asthma risk
+* Environmental Health Score
+
+Users receive:
+
+* Real-time dashboard updates
+* Risk levels (Low / Medium / High)
+* Preventive recommendations such as:
+
+  * Hydrate and avoid outdoor activity
+  * Improve ventilation
+  * Wear a mask when air quality is poor
+
+This solution is especially relevant for urban environments like Lagos, where heat and pollution significantly impact daily health.
+
+---
+
+## Features
+
+### IoT Environmental Monitoring
+
+* ESP32 microcontroller
+* DHT22 sensor (temperature & humidity)
+* MQ135 / PM sensor (air quality)
+* Data transmission via WiFi every 30–60 seconds
+
+### AI Risk Engine
+
+* Heat stress prediction
+* Air quality risk detection
+* Environmental Health Score (0–100)
+* Smart prevention recommendations
+
+### Real-Time Dashboard
+
+* Live sensor readings
+* Risk status (Green / Yellow / Red)
+* Health score visualization
+* Historical trends
+* Device status monitoring
+
+### API Integration
+
+* Weather API (fallback)
+* Air Quality API (contextual data)
+* Gemini Integration for chatbot and personalized responses
+
+---
+
+## Tech Stack
+
+**Frontend**
+
+* React
+* Tailwind CSS
+* Axios
+* Chart.js / Recharts
+
+**Backend**
+
+* Python
+* Fast API
+* SQLite
+
+**Hardware**
+
+* ESP32
+* DHT11
+* MQ135
+* PM Sensor
+* Buzzer
+* BreadBoard
+
+**Other**
+
+* REST APIs
+* IoT communication over HTTP
+
+---
+
+## System Architecture
+
+Hardware Layer
+ESP32 + Sensors → WiFi
+
+Backend Layer
+Python FastAPI → SQLite 
+
+AI Layer
+RAG + Rule-based risk engine + Gemini Integration
+
+Frontend Layer
+React Dashboard → Real-time visualization
+
+---
+
+## AI Risk Model
+
+### Heat Stress Rules
+
+* Temperature > 32°C and Humidity > 70% → High Risk
+* Temperature > 30°C → Medium Risk
+
+### Air Quality Rules
+
+* AQI > 150 → High Risk
+* AQI > 100 → Medium Risk
+
+### Health Score
+
+Health Score starts at 100.
+
+Penalties:
+
+* High heat risk: −25
+* Medium heat risk: −10
+* High air risk: −25
+* Medium air risk: −10
+
+Score interpretation:
+
+| Score  | Condition |
+| ------ | --------- |
+| 80–100 | Safe      |
+| 50–79  | Moderate  |
+| 0–49   | Unhealthy |
+
+---
+
+## Project Structure
+
+```
+EcoBreath-AI/
+│
+├── backend/
+│   ├── models/
+│   ├── routes/
+│   ├── controllers/
+│   ├── services/
+│   └── server.js
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── App.jsx
+│
+├── hardware/
+│   ├── esp32-code/
+│   └── wiring-diagram/
+│
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## API Endpoints
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### POST /api/sensor-data
+
+Send sensor data from ESP32
+
 ```
+{
+  "deviceId": "device-001",
+  "temperature": 31,
+  "humidity": 75,
+  "airQuality": 140,
+  "timestamp": 1700000000
+}
+```
+
+---
+
+### GET /api/latest
+
+Returns latest readings and risk analysis
+
+---
+
+### GET /api/history
+
+Returns historical environmental data
+
+---
+
+## Installation
+
+### Backend
+
+```
+cd backend
+npm install
+npm run dev
+```
+
+Create a `.env` file:
+
+```
+PORT=5000
+MONGO_URI=your_mongodb_connection
+```
+
+---
+
+### Frontend
+
+```
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs on:
+
+```
+http://localhost:5173
+```
+
+---
+
+## Hardware Setup
+
+Components:
+
+* ESP32
+* DHT22
+* MQ135 or PM sensor
+* Breadboard & jumper wires
+
+Steps:
+
+1. Connect sensors to ESP32
+2. Upload firmware
+3. Configure WiFi credentials
+4. Set backend API URL
+5. Device sends data every 30–60 seconds
+
+
+## Use Cases
+
+* Homes and families
+* Asthma patients
+* Schools and classrooms
+* Offices and workplaces
+* Hospitals
+* Outdoor workers
+
+
+## Future Improvements
+
+* Mobile app
+* WhatsApp/SMS alerts
+* Machine learning risk prediction
+* Multi-device monitoring
+* Building-level analytics
+* City-wide air quality risk maps
+
+
+## License
+
+MIT License
+
