@@ -31,16 +31,18 @@ const getRiskLabel = (level: RiskLevel) => {
 
 export const RiskPanel: React.FC<RiskPanelProps> = ({ heatRisk, airRisk, overallRisk }) => {
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                <AlertTriangle className="w-5 h-5 mr-2 text-slate-400" />
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 transition-all duration-300 hover:shadow-md">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-5 flex items-center">
+                <AlertTriangle className="w-4 h-4 mr-2" />
                 Current Risk Assessment
             </h3>
 
             <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center text-slate-600 font-medium">
-                        <ThermometerSun className="w-4 h-4 mr-2 text-orange-400" />
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-center text-slate-700 font-medium text-sm">
+                        <div className="bg-orange-100 p-1.5 rounded-lg mr-3">
+                            <ThermometerSun className="w-4 h-4 text-orange-500" />
+                        </div>
                         Heat Stress
                     </div>
                     <span className={clsx('px-3 py-1 rounded-full text-xs font-bold border', getRiskColors(heatRisk))}>
@@ -48,9 +50,11 @@ export const RiskPanel: React.FC<RiskPanelProps> = ({ heatRisk, airRisk, overall
                     </span>
                 </div>
 
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center text-slate-600 font-medium">
-                        <Wind className="w-4 h-4 mr-2 text-cyan-500" />
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-center text-slate-700 font-medium text-sm">
+                        <div className="bg-cyan-100 p-1.5 rounded-lg mr-3">
+                            <Wind className="w-4 h-4 text-cyan-500" />
+                        </div>
                         Air Quality
                     </div>
                     <span className={clsx('px-3 py-1 rounded-full text-xs font-bold border', getRiskColors(airRisk))}>
@@ -58,8 +62,8 @@ export const RiskPanel: React.FC<RiskPanelProps> = ({ heatRisk, airRisk, overall
                     </span>
                 </div>
 
-                <div className="pt-4 mt-2 border-t border-slate-100 flex items-center justify-between">
-                    <div className="text-sm font-semibold text-slate-700">Overall Assessment</div>
+                <div className="pt-4 mt-2 flex items-center justify-between">
+                    <div className="text-sm font-bold text-slate-800 tracking-tight">Overall Assessment</div>
                     <span className={clsx('px-3 py-1 rounded-full text-xs font-bold border', getRiskColors(overallRisk))}>
                         {getRiskLabel(overallRisk)}
                     </span>

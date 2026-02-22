@@ -5,7 +5,7 @@ import { clsx } from 'clsx';
 
 export const MobileBottomNav: React.FC = () => {
     return (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center justify-around pb-safe z-50 h-16 px-2">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200/50 flex items-center justify-around pb-safe z-50 h-16 px-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <NavLink
                 to="/"
                 className={({ isActive }) => clsx(
