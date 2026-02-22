@@ -18,8 +18,21 @@ OPEN_METEO_URL = (
 
 IP_GEO_URL = "http://ip-api.com/json/{ip}?fields=status,lat,lon,city"
 
-# Local/private IPs that cannot be geolocated
 UNROUTABLE_PREFIXES = ("127.", "192.168.", "10.", "172.", "::1")
+
+# ---------------------------------------------------------------------------
+# AQI validation
+# ---------------------------------------------------------------------------
+
+def is_device_aqi_valid(aqi: int) -> bool:
+    """
+    Returns False if the ESP32 AQI reading is clearly a sensor fault.
+    Valid range for Lagos context: 1–400.
+        0   → sensor not warmed up or disconnected
+        400+ → extremely unlikely, treat as fault
+        500 → sensor maxed out
+    """
+    return 1 <= aqi <= 400
 
 
 # ---------------------------------------------------------------------------
@@ -31,11 +44,9 @@ async def get_location_from_ip(request: Request) -> dict | None:
     Extracts the client IP from the request and attempts to geolocate it.
     Returns lat/lon dict or None if the IP is local or lookup fails.
     """
-    # Pull real IP — accounts for reverse proxies
     forwarded_for = request.headers.get("x-forwarded-for")
     ip = forwarded_for.split(",")[0].strip() if forwarded_for else request.client.host
 
-    # Skip immediately if local/private IP
     if any(ip.startswith(prefix) for prefix in UNROUTABLE_PREFIXES):
         print(f"[aqi_service] Local IP detected ({ip}), skipping IP geolocation.")
         return None
@@ -109,19 +120,33 @@ async def get_aqi_with_fallback(
 ) -> dict:
     """
     Priority order:
-        1. Provided coordinates (GPS from frontend)        → open-meteo
-        2. IP geolocation from request                     → open-meteo
-        3. Default .env coordinates (Lagos)                → open-meteo
-        4. Last known good value from database             → last_known
-        5. Nothing available                               → unavailable
+        1. Provided coordinates (GPS from frontend)   → open-meteo
+        2. IP geolocation from request                → open-meteo
+        3. Default .env coordinates (Lagos)           → open-meteo
+        4. Last known good value from database        → last_known
+        5. Nothing available                          → unavailable
     """
+    caller_provided_coordinates = lat is not None and lon is not None
 
     # 1. Frontend sent GPS coordinates
-    if lat is not None and lon is not None:
+    if caller_provided_coordinates:
         result = await fetch_aqi(lat, lon)
         if result:
             result["coordinate_source"] = "gps"
             return result
+        print("[aqi_service] Provided coordinates failed. Skipping to last known.")
+        if last_known:
+            last_known["source"] = "last_known"
+            last_known["coordinate_source"] = "cached"
+            return last_known
+        return {
+            "aqi":               None,
+            "pm2_5":             None,
+            "pm10":              None,
+            "source":            "unavailable",
+            "coordinate_source": "none",
+            "fetched_at":        datetime.now(timezone.utc).isoformat(),
+        }
 
     # 2. Try IP geolocation
     if request is not None:
@@ -157,3 +182,36 @@ async def get_aqi_with_fallback(
         "coordinate_source": "none",
         "fetched_at":        datetime.now(timezone.utc).isoformat(),
     }
+
+
+# ---------------------------------------------------------------------------
+# Step 4: Device AQI entry point — called from /sensor-data
+# ---------------------------------------------------------------------------
+
+async def resolve_aqi_from_device(
+    device_aqi: int,
+    request: Request,
+    last_known: dict | None = None,
+) -> dict:
+    """
+    Called every time the ESP32 sends a reading.
+    Validates the device AQI first. If valid, returns it stamped as source: device.
+    If invalid, runs the full fallback chain and flags the bad reading.
+    """
+    if is_device_aqi_valid(device_aqi):
+        return {
+            "aqi":               device_aqi,
+            "pm2_5":             None,   # device doesn't break this down
+            "pm10":              None,
+            "source":            "device",
+            "coordinate_source": "none",
+            "flagged_device_aqi": False,
+            "fetched_at":        datetime.now(timezone.utc).isoformat(),
+        }
+
+    # Device AQI is suspicious — log it and run fallback
+    print(f"[aqi_service] Device AQI {device_aqi} flagged as invalid. Running fallback.")
+    result = await get_aqi_with_fallback(request=request, last_known=last_known)
+    result["flagged_device_aqi"] = True
+    result["raw_device_aqi"] = device_aqi
+    return result
