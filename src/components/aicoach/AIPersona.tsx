@@ -19,11 +19,16 @@ export const AIPersona: React.FC<AIPersonaProps> = ({ symptoms, metrics }) => {
 
     // Initial Greeting based on context
     useEffect(() => {
+        if (messages.length > 0) return; // Prevent resetting chat on metrics poll
+
+        const userName = localStorage.getItem('ecoBreath_userName') || '';
+        const greetingName = userName ? ` ${userName}` : '';
+
         const initialMessages: ChatMessage[] = [
             {
                 id: 'greet-1',
                 role: 'model',
-                parts: [{ text: "Hello! I'm your EcoBreath AI Health Coach. How are you feeling today?" }]
+                parts: [{ text: `Hello${greetingName}! I'm your EcoBreath AI Health Coach. How are you feeling today?` }]
             }
         ];
 
@@ -36,8 +41,10 @@ export const AIPersona: React.FC<AIPersonaProps> = ({ symptoms, metrics }) => {
             });
         }
 
-        setMessages(initialMessages);
-    }, [metrics]);
+        if (metrics) {
+            setMessages(initialMessages);
+        }
+    }, [metrics, messages.length]);
 
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
@@ -80,57 +87,74 @@ export const AIPersona: React.FC<AIPersonaProps> = ({ symptoms, metrics }) => {
     };
 
     return (
-        <div className="bg-slate-900 rounded-xl shadow-xl w-full h-full border border-slate-800 flex flex-col overflow-hidden relative">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
-                <Bot className="w-64 h-64" />
+        <div className="relative bg-white/70 dark:bg-[var(--color-surface-800)]/80 backdrop-blur-3xl rounded-[2rem] shadow-sm dark:shadow-[var(--shadow-soft-dark)] w-full h-full border border-slate-200/50 dark:border-white/5 flex flex-col overflow-hidden transition-all duration-400">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.02] dark:opacity-[0.03] pointer-events-none transition-opacity">
+                <Bot className="w-80 h-80 text-slate-900 dark:text-white" />
             </div>
 
             {/* Header */}
-            <div className="flex-shrink-0 flex items-center p-4 border-b border-slate-700 bg-slate-900/90 backdrop-blur z-10">
-                <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center mr-3 ring-2 ring-indigo-500/50">
-                    <Bot className="w-5 h-5 text-indigo-400" />
+            <div className="flex-shrink-0 flex items-center p-5 border-b border-slate-200/50 dark:border-white/5 bg-white/50 dark:bg-[var(--color-surface-900)]/30 backdrop-blur-md z-10 transition-colors duration-400 shadow-sm dark:shadow-none">
+                <div className="w-12 h-12 rounded-2xl bg-[var(--color-brand-50)] dark:bg-[var(--color-brand-500)]/20 flex items-center justify-center mr-4 ring-2 ring-[var(--color-brand-500)]/30 dark:ring-[var(--color-brand-500)]/50 shadow-sm dark:shadow-[0_0_15px_rgba(20,184,166,0.3)] transition-colors">
+                    <Bot className="w-6 h-6 text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] dark:drop-shadow-[0_0_8px_rgba(20,184,166,0.8)] transition-colors" />
                 </div>
                 <div>
-                    <h3 className="text-lg font-bold font-sans tracking-tight flex items-center text-white">
+                    <h3 className="text-xl font-extrabold tracking-tight flex items-center text-slate-900 dark:text-white transition-colors">
                         EcoBreath AI
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400 ml-2" />
+                        <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400 ml-2 drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-colors" />
                     </h3>
-                    <p className="text-xs text-slate-400">Powered by Gemini</p>
+                    <p className="text-[11px] font-black text-slate-400 dark:text-slate-500 tracking-widest uppercase transition-colors">Powered by Gemini</p>
                 </div>
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar z-10">
+            <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-6 custom-scrollbar z-10 relative">
                 {messages.map((msg) => (
                     <div
                         key={msg.id}
                         className={clsx(
-                            "p-3.5 rounded-2xl max-w-[85%] md:max-w-[75%] shadow-md animate-fade-in-up flex items-start",
-                            msg.role === 'model'
-                                ? (msg.isAlert ? 'bg-red-500/10 border border-red-500/30 text-rose-100 rounded-tl-sm self-start' : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-tl-sm self-start')
-                                : 'bg-indigo-600 border border-indigo-500 text-white rounded-tr-sm self-end ml-auto'
+                            "flex items-end w-full animate-fade-in-up",
+                            msg.role === 'user' ? 'justify-end' : 'justify-start'
                         )}
                     >
-                        <div className="mr-3 mt-0.5 flex-shrink-0">
-                            {msg.role === 'model' && msg.isAlert && <AlertCircle className="w-4 h-4 text-red-400" />}
-                            {msg.role === 'model' && !msg.isAlert && <Bot className="w-4 h-4 text-indigo-400" />}
-                            {msg.role === 'user' && <User className="w-4 h-4 text-indigo-200" />}
+                        {msg.role === 'model' && (
+                            <div className="w-8 h-8 rounded-full bg-[var(--color-brand-50)] dark:bg-[var(--color-brand-900)]/50 flex items-center justify-center mr-2 flex-shrink-0 border border-[var(--color-brand-200)] dark:border-[var(--color-brand-500)]/30 mt-1">
+                                {msg.isAlert ? <AlertCircle className="w-4 h-4 text-rose-500 dark:text-rose-400" /> : <Bot className="w-4 h-4 text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)]" />}
+                            </div>
+                        )}
+                        <div
+                            className={clsx(
+                                "px-5 py-4 max-w-[85%] md:max-w-[75%] shadow-sm relative transition-colors duration-400",
+                                msg.role === 'model'
+                                    ? (msg.isAlert
+                                        ? 'bg-rose-50/90 dark:bg-rose-500/20 border border-rose-200 dark:border-rose-500/30 text-rose-900 dark:text-rose-100 rounded-[1.5rem] rounded-bl-sm backdrop-blur-md'
+                                        : 'bg-white/90 dark:bg-[var(--color-surface-700)]/80 text-slate-700 dark:text-slate-200 border border-slate-200/50 dark:border-white/5 rounded-[1.5rem] rounded-bl-sm backdrop-blur-md')
+                                    : 'bg-gradient-to-br from-[var(--color-brand-600)] to-[#0ea5e9] border border-[var(--color-brand-400)] text-white rounded-[1.5rem] rounded-br-sm shadow-md shadow-[var(--color-brand-500)]/20 text-slate-50'
+                            )}
+                        >
+                            <div className="text-sm md:text-[15px] leading-relaxed font-medium whitespace-pre-wrap">
+                                {/* Very primitive markdown rendering for bolding usually found in gemini responses */}
+                                {msg.parts[0].text.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} className={clsx("font-extrabold drop-shadow-sm", msg.role === 'user' ? "text-white" : "text-[var(--color-brand-600)] dark:text-white")}>{part}</strong> : part)}
+                            </div>
                         </div>
-
-                        <div className="text-sm md:text-base leading-relaxed font-medium whitespace-pre-wrap">
-                            {/* Very primitive markdown rendering for bolding usually found in gemini responses */}
-                            {msg.parts[0].text.split('**').map((part, i) => i % 2 === 1 ? <strong key={i}>{part}</strong> : part)}
-                        </div>
+                        {msg.role === 'user' && (
+                            <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/50 flex items-center justify-center ml-2 flex-shrink-0 border border-indigo-200 dark:border-indigo-500/30">
+                                <User className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                        )}
                     </div>
                 ))}
 
                 {isLoading && (
-                    <div className="p-3.5 rounded-2xl max-w-[85%] bg-slate-800 text-slate-200 border border-slate-700 rounded-tl-none self-start flex items-center animate-fade-in">
-                        <Bot className="w-4 h-4 text-indigo-400 mr-3 animate-pulse" />
-                        <div className="flex space-x-1.5 opacity-50">
-                            <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                            <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                            <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div className="flex items-end w-full animate-fade-in justify-start">
+                        <div className="w-8 h-8 rounded-full bg-[var(--color-brand-50)] dark:bg-[var(--color-brand-900)]/50 flex items-center justify-center mr-2 flex-shrink-0 border border-[var(--color-brand-200)] dark:border-[var(--color-brand-500)]/30 mt-1">
+                            <Bot className="w-4 h-4 text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] animate-pulse" />
+                        </div>
+                        <div className="px-6 py-5 max-w-[85%] bg-white/90 dark:bg-[var(--color-surface-700)]/80 backdrop-blur-md border border-slate-200/50 dark:border-white/5 rounded-[1.5rem] rounded-bl-sm flex items-center shadow-sm">
+                            <div className="flex space-x-1.5 opacity-60">
+                                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -138,7 +162,7 @@ export const AIPersona: React.FC<AIPersonaProps> = ({ symptoms, metrics }) => {
             </div>
 
             {/* Input Area */}
-            <div className="flex-shrink-0 p-3 bg-slate-800 border-t border-slate-700 z-10">
+            <div className="flex-shrink-0 p-4 sm:p-5 bg-white/50 dark:bg-[var(--color-surface-900)]/50 backdrop-blur-3xl border-t border-slate-200/50 dark:border-white/5 z-10 transition-colors duration-400 relative">
                 <form onSubmit={handleSendMessage} className="flex relative items-center">
                     <input
                         type="text"
@@ -146,18 +170,18 @@ export const AIPersona: React.FC<AIPersonaProps> = ({ symptoms, metrics }) => {
                         onChange={(e) => setInputValue(e.target.value)}
                         placeholder="Ask about your symptoms or environment..."
                         disabled={isLoading}
-                        className="w-full bg-slate-900 border border-slate-700 text-white rounded-full pl-5 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-500 disabled:opacity-50"
+                        className="w-full bg-slate-50/80 dark:bg-[var(--color-surface-800)]/80 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white rounded-[2rem] pl-6 pr-14 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 transition-all font-medium shadow-inner dark:shadow-none"
                     />
                     <button
                         type="submit"
                         disabled={isLoading || !inputValue.trim()}
-                        className="absolute right-2 p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="absolute right-2 p-3 bg-[var(--color-brand-600)] text-white rounded-full hover:bg-[var(--color-brand-500)] shadow-md dark:shadow-lg shadow-[var(--color-brand-500)]/20 dark:shadow-[var(--color-brand-500)]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                     >
-                        <Send className="w-4 h-4" />
+                        <Send className="w-5 h-5" />
                     </button>
                 </form>
-                <div className="text-center mt-2">
-                    <span className="text-[10px] text-slate-500">Gemini may display inaccurate info, so double-check its responses.</span>
+                <div className="text-center mt-3">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400/80 dark:text-slate-500/80 transition-colors">Gemini may display inaccurate info, double-check its responses.</span>
                 </div>
             </div>
         </div>
