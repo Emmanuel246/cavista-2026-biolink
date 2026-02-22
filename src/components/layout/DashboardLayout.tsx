@@ -6,10 +6,10 @@ import { MobileBottomNav } from './MobileBottomNav';
 
 export const DashboardLayout: React.FC = () => {
     return (
-        <div className="flex h-screen bg-[#020617] text-slate-50 overflow-hidden relative selection:bg-cyan-500/30">
-            {/* Ambient Background Glows */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none"></div>
+        <div className="flex h-screen bg-slate-50 dark:bg-[#020617] text-slate-800 dark:text-slate-50 overflow-hidden relative selection:bg-cyan-500/30 transition-colors duration-300">
+            {/* Ambient Background Glows (Dark Mode Only) */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none hidden dark:block"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none hidden dark:block"></div>
 
             {/* Desktop Sidebar (hidden on mobile) */}
             <Sidebar />
