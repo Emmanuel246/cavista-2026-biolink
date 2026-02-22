@@ -31,8 +31,13 @@ export const generateCoachResponse = async (
         return "Error: Gemini API Key is missing. Please add VITE_GEMINI_API_KEY to your .env.local file to enable the chat.";
     }
 
+    const userName = localStorage.getItem('ecoBreath_userName') || 'User';
+    const userFocus = localStorage.getItem('ecoBreath_focus') || 'respiratory health';
+
     // Construct the contextual prompt
     let contextStr = "CURRENT CONTEXT:\n";
+    contextStr += `- User Profile: Name is ${userName}, Primary Health Focus is ${userFocus}\n`;
+
     if (currentMetrics) {
         contextStr += `- Environment: Temp: ${currentMetrics.temperature.toFixed(1)}°C, Humidity: ${currentMetrics.humidity.toFixed(0)}%, AQI: ${currentMetrics.airQuality.toFixed(0)} (Risk: ${currentMetrics.overallRisk})\n`;
     } else {

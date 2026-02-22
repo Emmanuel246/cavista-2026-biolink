@@ -21,11 +21,14 @@ export const AIPersona: React.FC<AIPersonaProps> = ({ symptoms, metrics }) => {
     useEffect(() => {
         if (messages.length > 0) return; // Prevent resetting chat on metrics poll
 
+        const userName = localStorage.getItem('ecoBreath_userName') || '';
+        const greetingName = userName ? ` ${userName}` : '';
+
         const initialMessages: ChatMessage[] = [
             {
                 id: 'greet-1',
                 role: 'model',
-                parts: [{ text: "Hello! I'm your EcoBreath AI Health Coach. How are you feeling today?" }]
+                parts: [{ text: `Hello${greetingName}! I'm your EcoBreath AI Health Coach. How are you feeling today?` }]
             }
         ];
 

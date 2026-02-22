@@ -1,10 +1,20 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileBottomNav } from './MobileBottomNav';
 
 export const DashboardLayout: React.FC = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const hasOnboarded = localStorage.getItem('ecoBreath_onboarded');
+        if (!hasOnboarded && location.pathname !== '/onboarding') {
+            navigate('/onboarding', { replace: true });
+        }
+    }, [navigate, location]);
+
     return (
         <div className="flex h-screen bg-[var(--color-surface-50)] dark:bg-[var(--color-surface-900)] text-slate-800 dark:text-slate-50 overflow-hidden relative selection:bg-brand-500/30 transition-colors duration-400 p-2 md:p-4 gap-2 md:gap-4">
             {/* Ambient Background Glows (Dark Mode Only) */}
