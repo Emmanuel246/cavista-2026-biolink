@@ -41,13 +41,13 @@ async def init_db():
 # Sensor readings
 # ---------------------------------------------------------------------------
 
-async def save_sensor_reading(payload: dict, risk: dict) -> int:
+async def save_sensor_reading(record: dict, risk: dict) -> int:
     async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute(
             "INSERT INTO sensor_readings (timestamp, sensor_data, risk_data) VALUES (?, ?, ?)",
             (
                 datetime.now(timezone.utc).isoformat(),
-                json.dumps(payload),
+                json.dumps(record),
                 json.dumps(risk),
             )
         )
@@ -64,11 +64,15 @@ async def get_latest_sensor_reading() -> dict | None:
         row = await cursor.fetchone()
         if not row:
             return None
+
+        record = json.loads(row["sensor_data"])
+
         return {
             "id":                row["id"],
             "timestamp":         row["timestamp"],
-            "sensor_readings":   json.loads(row["sensor_data"]),
-            "health_assessment": json.loads(row["risk_data"]),
+            "sensor_readings":   record.get("sensor_readings", {}),
+            "aqi_info":          record.get("aqi_info", {}),
+            "health_assessment": record.get("health_assessment", {}),
         }
 
 
@@ -81,9 +85,10 @@ async def get_reading_history(limit: int = 50) -> list:
         rows = await cursor.fetchall()
         results = [
             {
-                "id":              row["id"],
-                "timestamp":       row["timestamp"],
-                "sensor_readings": json.loads(row["sensor_data"]),
+                "id":          row["id"],
+                "timestamp":   row["timestamp"],
+                "sensor_readings": json.loads(row["sensor_data"]).get("sensor_readings", {}),
+                "aqi_info":        json.loads(row["sensor_data"]).get("aqi_info", {}),
                 "health_score":    json.loads(row["risk_data"]).get("health_score"),
             }
             for row in rows
