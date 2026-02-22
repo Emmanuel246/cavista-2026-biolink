@@ -6,28 +6,23 @@ SEVERITY_WEIGHTS = {
     "severe":   3,
 }
 
+
 def _score_symptoms(symptoms: dict) -> int:
     """
-    Accepts the new list-based symptom structure.
-    Scores all symptoms (predefined + other) by severity.
-    Still returns 0-9 so nothing downstream changes.
+    Accepts the list-based symptom structure.
     Future AI replacement point: swap this function's internals only.
     """
     all_symptoms = symptoms.get("symptoms", []) + symptoms.get("other_symptoms", [])
-
     if not all_symptoms:
         return 0
-
     total = sum(SEVERITY_WEIGHTS.get(s.get("severity", "mild"), 1) for s in all_symptoms)
-
-    # Normalise: cap at 9 regardless of how many symptoms are logged
     return min(9, total)
 
 
 def assess_environment_risk(
     temperature: float,
     humidity: float,
-    aqi: int,
+    aqi: int | None,
     symptoms: Optional[dict] = None,
 ) -> dict:
 
@@ -36,7 +31,7 @@ def assess_environment_risk(
     alerts = []
 
     # ------------------------------------------------------------------
-    # Stage 1: Heat Stress (active)
+    # Stage 1: Heat Stress
     # ------------------------------------------------------------------
     if temperature > 32 and humidity > 70:
         heat_risk = "High"
@@ -55,9 +50,49 @@ def assess_environment_risk(
         heat_risk = "Low"
 
     # ------------------------------------------------------------------
-    # Stage 2: Respiratory / AQI (stub)
+    # Stage 2: Respiratory / AQI
     # ------------------------------------------------------------------
-    respiratory_risk = "Pending"
+    if aqi is None:
+        respiratory_risk = "Unknown"
+        recommendations.append(
+            "Air quality data is currently unavailable. Take precautions if outdoors."
+        )
+    elif aqi > 200:
+        respiratory_risk = "Critical"
+        score -= 45
+        alerts.append("Critical Air Quality")
+        recommendations.append(
+            "Air quality is hazardous. Stay indoors, keep windows closed, and use an air purifier."
+        )
+    elif aqi > 150:
+        respiratory_risk = "High"
+        score -= 35
+        alerts.append("Poor Air Quality")
+        recommendations.append(
+            "Unhealthy air quality. Avoid all outdoor activity, especially for asthma patients."
+        )
+    elif aqi > 100:
+        respiratory_risk = "Moderate"
+        score -= 20
+        recommendations.append(
+            "Air quality is unhealthy for sensitive groups. Asthma patients should limit outdoor exposure."
+        )
+    elif aqi > 50:
+        respiratory_risk = "Low-Moderate"
+        score -= 10
+        recommendations.append(
+            "Moderate air quality. Sensitive individuals should monitor symptoms."
+        )
+    else:
+        respiratory_risk = "Low"
+
+    # Humidity interaction — high humidity makes particulate matter worse
+    # Only applies when air quality is already a concern
+    if humidity > 75 and aqi is not None and aqi > 100:
+        score -= 5
+        recommendations.append(
+            "High humidity is amplifying air quality risk. Ensure good indoor ventilation."
+        )
 
     # ------------------------------------------------------------------
     # Stage 3: Symptom Scoring
@@ -68,7 +103,10 @@ def assess_environment_risk(
         symptom_score = _score_symptoms(symptoms)
         score -= symptom_score * 3
 
-        env_is_elevated = heat_risk in ("Moderate", "High")
+        env_is_elevated = (
+            heat_risk in ("Moderate", "High") or
+            respiratory_risk in ("Moderate", "High", "Critical", "Low-Moderate")
+        )
 
         if symptom_score >= 6 and env_is_elevated:
             asthma_attack_risk = "High"
