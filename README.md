@@ -179,35 +179,35 @@ EcoBreath-AI/
 
 ---
 
-## API Endpoints
+## Production API Endpoints
 
-### POST /api/sensor-data
+**Base URL:** `https://cavista-2026-ecobreathe-ai-production.up.railway.app`
 
-Send sensor data from ESP32
-
-```
+### POST /sensor-data
+Send sensor data from ESP32.
+```json
 {
-  "deviceId": "device-001",
   "temperature": 31,
   "humidity": 75,
-  "airQuality": 140,
-  "timestamp": 1700000000
+  "aqi": 140,
+  "device_id": "device-001"
 }
 ```
 
 ---
 
-### GET /api/latest
+### GET /latest-data
+Returns latest readings and full risk analysis for the dashboard.
 
-Returns latest readings and risk analysis
+---
+
+### GET /history
+Returns the 50 most recent historical environmental data points.
 
 ---
 
-### GET /api/history
-
-Returns historical environmental data
-
----
+### POST /symptom-diary
+Receives structured symptom entries directly from the dashboard.
 
 ## Installation
 

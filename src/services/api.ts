@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { DashboardMetrics, HistoryDataPoint } from './types';
 import { generateMockMetrics, generateMockHistory } from './mockData';
 
-const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = 'https://cavista-2026-ecobreathe-ai-production.up.railway.app';
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
