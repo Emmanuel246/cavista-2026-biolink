@@ -16,10 +16,12 @@ class SymptomItem(BaseModel):
 
 
 class SensorPayload(BaseModel):
-    temperature: float = Field(..., ge=-10, le=60, description="Celsius")
-    humidity:    float = Field(..., ge=0, le=100, description="Relative humidity %")
-    aqi:         int   = Field(..., ge=0, le=500, description="Air Quality Index")
+    temperature: float        = Field(..., ge=-10, le=60,  description="Celsius")
+    humidity:    float        = Field(..., ge=0,   le=100, description="Relative humidity %")
+    aqi:         int          = Field(..., ge=0,   le=500, description="AQI from ESP32 sensor")
     device_id:   Optional[str] = Field(default="esp32-001")
+    latitude:    Optional[float] = Field(default=None, ge=-90,  le=90,  description="GPS lat from frontend")
+    longitude:   Optional[float] = Field(default=None, ge=-180, le=180, description="GPS lon from frontend")
 
 
 class SymptomEntry(BaseModel):
